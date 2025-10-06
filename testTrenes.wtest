@@ -1,0 +1,179 @@
+import vagonesCarga.*
+import vagonesPasajeros.*
+import locomotoras.*
+import formaciones.*
+import deposito.*
+
+describe "grupo de tests para trenes y depositos" {
+
+    test "cantidad de pasajeros para vagon largo" {
+        const vagonPasajerosLargo = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 10)
+        assert.equals(100, vagonPasajerosLargo.cuantosPuedeTransportar())
+    }
+
+    test "cantidad de pasajeros para vagon corto" {
+        const vagonPasajerosCorto = new VagonPasajeros(anchoUtil = 2, metrosDeLargo = 10)
+        assert.equals(80, vagonPasajerosCorto.cuantosPuedeTransportar())
+    }
+
+    // 4
+    test "cuantos pasajeros puede transportar una formacion con un vagon que lleva 100 y otro que lleva 80" {
+        const vagonPasajerosLargo = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 10)
+        const vagonPasajerosCorto = new VagonPasajeros(anchoUtil = 2, metrosDeLargo = 10)
+        const formacion = new Formacion()
+
+        formacion.añadirVagonPasajeros(vagonPasajerosCorto)
+        formacion.añadirVagonPasajeros(vagonPasajerosLargo)
+
+        assert.equals(180, formacion.totalPasajeros())
+    }
+
+    // 5
+    test "cuantos vagones livianos hay en una formacion "{
+        const vagonPasajerosLargo = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 10)
+        const vagonPasajerosCorto = new VagonPasajeros(anchoUtil = 2, metrosDeLargo = 3)
+        const vagonPasajerosCorto2 = new VagonPasajeros(anchoUtil = 2, metrosDeLargo = 2)
+        const formacion = new Formacion()
+
+        formacion.añadirVagonPasajeros(vagonPasajerosCorto)
+        formacion.añadirVagonPasajeros(vagonPasajerosLargo)
+        formacion.añadirVagonPasajeros(vagonPasajerosCorto2)
+
+        assert.equals(2, formacion.cuantosVagonesLivianos())
+    }
+
+    // 6
+    test "velocidad maxima teniendo una locomotora de 30 y otra de 50" {
+        const locomotoraLenta = new Locomotora(peso = 1000, pesoMaximoDeArrastre = 12000, velocidadMaxima = 30)
+        const locomotoraRapida = new Locomotora(peso = 1000, pesoMaximoDeArrastre = 12000, velocidadMaxima = 50)
+        const formacion = new Formacion()
+
+        formacion.añadirLocotomora(locomotoraLenta)
+        formacion.añadirLocotomora(locomotoraRapida)
+
+        assert.equals(30, formacion.velocidadMaxima())
+    }
+
+    // 7
+    test "si una formacion con vagones que pesan 9920 y dos locomotoras que tiran 7500 es ineficiente"{
+        const vagonPasajeros8000 = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 10)
+        const vagonPasajeros1920 = new VagonPasajeros(anchoUtil = 2, metrosDeLargo = 3)
+        const locomotora500 = new Locomotora(peso = 1000, pesoMaximoDeArrastre = 500, velocidadMaxima = 50)
+        const locomotora1000 = new Locomotora(peso = 1000, pesoMaximoDeArrastre = 1000, velocidadMaxima = 50)
+        const formacion = new Formacion()
+
+        formacion.añadirLocotomora(locomotora1000)
+        formacion.añadirLocotomora(locomotora500)
+        formacion.añadirVagonPasajeros(vagonPasajeros1920)
+        formacion.añadirVagonPasajeros(vagonPasajeros8000)
+
+        assert.notThat(formacion.esEficiente())
+    }
+
+    test "vagon mas pesado de una formacion con una vagon de 100 pasajeros(8000) y un vagon de carga de 80(2000)"{
+        const vagonpasajeros8000kg = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 10)
+        const vagoncarga2000kg = new VagonCarga(cargaMaxima=1840)
+
+        const formacion1 = new Formacion()
+
+        formacion1.añadirVagonPasajeros(vagonpasajeros8000kg)
+        formacion1.añadirVagonCarga(vagoncarga2000kg)
+
+        assert.equals(vagonpasajeros8000kg,formacion1.vagonMasPesado())
+    }
+
+    // 10
+    test "vagones mas pesados de un deposito con 2 formaciones, una con un vagon de 8000 kg y otro de 2000kg y la 2da formacion con un vagon de 4000kg y otro de 5000kg"{
+        const vagonpasajeros8000kg = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 10)
+        const vagoncarga2000kg = new VagonCarga(cargaMaxima=1840)
+
+        const formacion1 = new Formacion()
+
+        formacion1.añadirVagonPasajeros(vagonpasajeros8000kg)
+        formacion1.añadirVagonCarga(vagoncarga2000kg)
+
+        const vagonpasajeros4000kg = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 5)
+        const vagoncarga5000kg = new VagonCarga(cargaMaxima=4840)
+
+        const formacion2 = new Formacion()
+
+        formacion2.añadirVagonPasajeros(vagonpasajeros8000kg)
+        formacion2.añadirVagonCarga(vagoncarga2000kg)
+
+        const deposito = new Deposito()
+        deposito.añadirFormacion(formacion1)
+        deposito.añadirFormacion(formacion2)
+
+        assert.equals([vagonpasajeros8000kg, vagoncarga5000kg], deposito.vagonesMasPesados()) //Da mal porque deben contar como distintos objetos
+    }
+
+    // 11
+    test "necesita un conductor experimentado un deposito con 2 formaciones, una compleja y la otra no"{
+        const vagoncarga1 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga2 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga3 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga4 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga5 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga6 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga7 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga8 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga9 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga10 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga11= new VagonCarga(cargaMaxima=10)
+        const vagoncarga12 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga13 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga14 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga15 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga16 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga17 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga18 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga19 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga20 = new VagonCarga(cargaMaxima=10)
+        const vagoncarga21 = new VagonCarga(cargaMaxima=10)
+
+        const formacion1 = new Formacion()
+
+        formacion1.añadirVagonCarga(vagoncarga1)
+        formacion1.añadirVagonCarga(vagoncarga2)
+        formacion1.añadirVagonCarga(vagoncarga3)
+        formacion1.añadirVagonCarga(vagoncarga4)
+        formacion1.añadirVagonCarga(vagoncarga5)
+        formacion1.añadirVagonCarga(vagoncarga6)
+        formacion1.añadirVagonCarga(vagoncarga7)
+        formacion1.añadirVagonCarga(vagoncarga8)
+        formacion1.añadirVagonCarga(vagoncarga9)
+        formacion1.añadirVagonCarga(vagoncarga10)
+        formacion1.añadirVagonCarga(vagoncarga11)
+        formacion1.añadirVagonCarga(vagoncarga12)
+        formacion1.añadirVagonCarga(vagoncarga13)
+        formacion1.añadirVagonCarga(vagoncarga14)
+        formacion1.añadirVagonCarga(vagoncarga15)
+        formacion1.añadirVagonCarga(vagoncarga16)
+        formacion1.añadirVagonCarga(vagoncarga17)
+        formacion1.añadirVagonCarga(vagoncarga18)
+        formacion1.añadirVagonCarga(vagoncarga19)
+        formacion1.añadirVagonCarga(vagoncarga20)
+        formacion1.añadirVagonCarga(vagoncarga21)
+
+        const vagonpasajeros4000kg = new VagonPasajeros(anchoUtil = 3, metrosDeLargo = 5)
+        const vagoncarga5000kg = new VagonCarga(cargaMaxima=4840)
+
+        const formacion2 = new Formacion()
+
+        formacion2.añadirVagonPasajeros(vagonpasajeros4000kg)
+        formacion2.añadirVagonCarga(vagoncarga5000kg)
+
+        const deposito = new Deposito()
+        deposito.añadirFormacion(formacion1)
+        deposito.añadirFormacion(formacion2)
+
+        assert.that(deposito.necesitaConductorExperimentado())
+        
+    }
+
+    test ""{
+        
+    }
+ 
+    
+}
